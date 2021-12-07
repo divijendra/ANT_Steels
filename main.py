@@ -1,11 +1,3 @@
-# This is a sample Python script.
-
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
-
-
-
-# Press the green button in the gutter to run the script.
 import production_rate
 
 if __name__ == '__main__':
@@ -18,7 +10,4 @@ if __name__ == '__main__':
     frac_of_nominal_wt = float(input("Enter required weight in terms of percentage of nominal weight required (%): ")) / 100
     frac_of_init_vol = 1 - float(input("Enter percentage of product lost during processing (%): ")) / 100
     time_gap = float(input("Enter time gap at finishing stage (seconds): "))
-
-#    print(production_rate.production_rate())
     print(production_rate.production_rate(width, thickness, length, diameter, density, velocity, frac_of_nominal_wt, frac_of_init_vol, time_gap))
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
