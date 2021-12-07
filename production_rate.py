@@ -27,6 +27,3 @@ def production_rate(width=0.1, thickness=0.1, length=6, diameter=0.008, density=
     wt_of_bar = frac_of_init_vol * density * width * thickness * length
     prod_rate = wt_of_bar / time_for_one_bar
     return prod_rate
-"""
-    return frac_of_init_vol * frac_of_nominal_wt * 3600 * density * width * thickness * length / (frac_of_init_vol * width * thickness * length + time_gap * math.pi * diameter * diameter * velocity * frac_of_nominal_wt)
-"""
