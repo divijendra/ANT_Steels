@@ -3,75 +3,149 @@ import numpy as np
 from scipy.optimize import minimize
 
 
-def production_rate(width=0.1, thickness=0.1, length=6, diameter=0.008, density=7.85, speed=22,
-                    wt_frac=0.96, vol_frac=0.97, time_gap=5, strands = 2):
-    """
+class Billet:
+    def __init__(self):
+        self.density = float(input("Enter value of density (tons/m3): "))
+        self.width = float(input("Enter width of the billet (mm): ")) / 1000
+        self.thickness = float(input("Enter thickness of the billet (mm): ")) / 1000
+        self.length = float(input("Enter length of billet (mm): ")) / 1000
+        self.volume = self.width * self.length * self.thickness
 
-    :param width: width of the billet in metres
-    :param thickness: thickness of the billet in metres
-    :param length: length of the billet in metres
-    :param diameter: diameter of the finished product in metres
-    :param density: density of the steel in tons per cubic metre
-    :param speed: Finishing bar speed in m/s
-    :param frac_of_nominal_wt: Fraction of nominal weight to be retained
-    :param frac_of_init_vol: Fraction of initial volume retained
-    :param time_gap: Time gap between two bars at finishing stage in seconds
-    :return: Production rate in tons per hour
-    """
-    bar_length = vol_frac * width * thickness * length / (strands * wt_frac * math.pi * (diameter ** 2) / 4)
-    total_time = time_gap + (bar_length / speed)
-    return 3600 * density * width * thickness * length * vol_frac / total_time
+
+class Product:
+    def __init__(self, billet):
+        self.diameter = float(input("Enter diameter of the finished product (mm): ")) / 1000
+        self.max_speed = float(input("Enter maximum finishing speed (m/sec): "))
+        self.min_speed = float(input("Enter minimum finishing speed (m/sec): "))
+        self.max_prod_rate = float(input("Enter maximum production rate (tons/hr): "))
+        self.wt_frac = float(
+            input("Enter required weight in terms of percentage of nominal weight required (%): ")) / 100
+        self.vol_frac = 1 - float(input("Enter percentage of product lost during processing (%): ")) / 100
+        self.min_time_gap = float(input("Enter minimum time gap at finishing stage (seconds): "))
+        self.utilisation = float(input("Enter utilisation (%): ")) / 100
+        self.demand = float(input("Enter product mix demand per month (%): ")) / 100
+        self.strands = float(input("Enter number of strands: "))
+        self.area = math.pi * (self.diameter ** 2) / 4
+        self.density = billet.density
+        self.prod_rate = "Not calculated"
+        self.speed = "Not calculated"
+        self.time_gap = "Not calculated"
+        self.days = None
+        self.monthly_production = None
+
+    def production_rate(self, billet, speed, time_gap):
+        bar_length = billet.volume * self.vol_frac / (self.strands * self.wt_frac * self.area)
+        total_time = time_gap + (bar_length / speed)
+        return 3600 * self.density * billet.width * billet.thickness * billet.length / total_time
+
+    def modify(self, billet):
+        self.density = billet.density
 
 
 def objective(params, *variables):
     """
 
-    :param params: (0_prod_rate (t/hr), 1_speed (am/s), 2_time_gap (s))
-    :param variables: 0_vol_frac, 1_wt_frac, 2_strands, 3_diameter, 4_density, 5_width, 6_thickness, 7_length
+    :param params: (0_speed (m/s), 1_time_gap (s))
+    :param variables: (product, billet)
     :return:
     """
-    speed = params[0]
-    time_gap = params[1]
-    vol_frac = variables[0]
-    wt_frac = variables[1]
-    strands = variables[2]
-    diameter = variables[3]
-    density = variables[4]
-    width = variables[5]
-    thickness = variables[6]
-    length = variables[7]
-    return -production_rate(width, thickness, length, diameter, density, speed, wt_frac, vol_frac, time_gap, strands)
+    return -variables[0].production_rate(variables[1], params[0], params[1])
 
 
 def constraint(params, *variables):
-    return variables[8] + objective(params, *variables)
+    """
+
+    :param params: (0_speed (m/s), 1_time_gap (s))
+    :param variables: (product, billet)
+    :return:
+    """
+    return variables[0].max_prod_rate + objective(params, *variables)
+
+
+def optimal_speed_and_time_gap(product, billet):
+    speed_bounds = (product.min_speed, product.max_speed)
+    time_gap_bounds = (product.min_time_gap, math.inf)
+    bounds = (speed_bounds, time_gap_bounds)
+    init_vals = np.array([product.max_speed, product.min_time_gap])
+    constr = {"type": "ineq", "fun": constraint, "args": (product, billet)}
+    result = minimize(objective, init_vals, method="SLSQP", bounds=bounds, constraints=constr, args=(product, billet))
+    return result
+
+
+def monthly_prod_rate(products):
+    total_days = int(input("Enter total number of working days per month: "))
+    sum = 0
+    for product in products:
+        sum += (product.demand / (24 * product.prod_rate * product.utilisation))
+    production_per_month = total_days / sum
+    for product in products:
+        product.days = product.demand * production_per_month / (24 * product.prod_rate * product.utilisation)
+        product.monthly_production = product.demand * production_per_month
+    return production_per_month, total_days
+
+
+def yearly_prod_rate(prod_per_month):
+    return 12 * prod_per_month
 
 
 if __name__ == '__main__':
-    density = float(input("Enter value of density (tons/m3): "))
-    width = float(input("Enter width of the billet (mm): ")) / 1000
-    thickness = float(input("Enter thickness of the billet (mm): ")) / 1000
-    length = float(input("Enter length of billet (mm): ")) / 1000
-    diameter = float(input("Enter diameter of the finished product (mm): ")) / 1000
-    max_speed = float(input("Enter maximum finishing speed (m/sec): "))
-    min_speed = float(input("Enter minimum finishing speed (m/sec): "))
-    max_prod_rate = float(input("Enter maximum production rate (tons/hr): "))
-    wt_frac = float(input("Enter required weight in terms of percentage of nominal weight required (%): ")) / 100
-    vol_frac = 1 - float(input("Enter percentage of product lost during processing (%): ")) / 100
-    min_time_gap = float(input("Enter minimum time gap at finishing stage (seconds): "))
-    efficiency = float(input("Enter utilisation (%): ")) / 100
-    strands = float(input("Enter number of strands: "))
-    bounds_speed = (min_speed, max_speed)
-    bounds_time_gap = (min_time_gap, math.inf)
-    bounds = (bounds_speed, bounds_time_gap)
-    init_vals = np.array([max_speed, min_time_gap])
-    constr = {"type": "ineq", "fun": constraint, "args": (vol_frac, wt_frac, strands, diameter, density, width,
-                                                          thickness, length, max_prod_rate)}
-    result = minimize(objective, init_vals, method="SLSQP", bounds=bounds, constraints=constr, args=(vol_frac, wt_frac,
-                                                                                                     strands, diameter,
-                                                                                                     density, width,
-                                                                                                     thickness, length,
-                                                                                                     max_prod_rate))
-    print("Maximum production rate possible:", -result.fun)
-    print("Optimum speed and time gap to suit maximum production rate possible: ", result.x[0], "m/s and", result.x[1],
-          "seconds")
+    billet = Billet()
+    n = int(input("Enter number of products: "))
+    products = list()
+    for i in range(n):
+        print("**********Enter details of product " + str(i + 1) + "**********")
+        p = Product(billet)
+        result = optimal_speed_and_time_gap(p, billet)
+        p.speed = result.x[0]
+        p.time_gap = result.x[1]
+        p.prod_rate = -result.fun
+        products.append(p)
+    total_monthly_prod, num_days_in_month = monthly_prod_rate(products)
+    total_yearly_prod = yearly_prod_rate(total_monthly_prod)
+
+    print("**********Select an option**********")
+    print("1. Display optimal speed, time gap and maximum possible production rates for the entered products")
+    print("2. Calculate monthly production rate of list of products")
+    print("3. Calculate yearly production rate for list of products")
+    print("4. Add details of another product")
+    print("5. Change details of the billet")
+    print("6. quit")
+    query = int(input("Enter your choice: "))
+    while query in (1, 2, 3, 4, 5):
+        if query == 1:
+            print("Optimal speed(m/s)\tOptimal time gap(s)\tProduction rate(tonnes/hr)")
+            for product in products:
+                print("{:.5f}\t\t\t{:.5f}\t\t\t\t{:.5f}".format(product.speed, product.time_gap, product.prod_rate))
+        elif query == 2:
+            print("Diameter(m)\t\tNo. of days\t\tMonthly production in tonnes")
+            for product in products:
+                print("{:.5f}\t\t\t{:.5f}\t\t{:.5f}".format(product.diameter, product.days, product.monthly_production))
+            print("Total monthly production is", total_monthly_prod,
+                  " tonnes and total number of working days in a month are", num_days_in_month)
+        elif query == 3:
+            print("Diameter(m)\t\tNo. of days\t\tYearly production in tonnes")
+            for product in products:
+                print("{:.5f}\t\t\t{:.5f}\t\t{:.5f}".format(product.diameter, product.days * 12, product.monthly_production * 12))
+            print("Total yearly production is", total_yearly_prod,
+                  "tonnes and total number of working days in a year are", num_days_in_month * 12)
+        elif query == 4:
+            products.append(Product(billet))
+        elif query == 5:
+            billet = Billet()
+            for i in range(len(products)):
+                products[i].modify(billet)
+                result = optimal_speed_and_time_gap(products[i], billet)
+                products[i].prod_rate = -result.fun
+                products[i].speed = result.x[0]
+                products[i].time_gap = result.x[1]
+            print("**********Details updated**********")
+        else:
+            break
+        print("**********Select an option**********")
+        print("1. Display optimal speed, time gap and maximum possible production rates for the entered products")
+        print("2. Calculate monthly production rate of list of products")
+        print("3. Calculate yearly production rate for list of products")
+        print("4. Add details of another product")
+        print("5. Change details of the billet")
+        print("6. quit")
+        query = int(input("Enter your choice: "))
