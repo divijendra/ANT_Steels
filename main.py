@@ -36,7 +36,7 @@ class Product:
     def production_rate(self, billet, speed, time_gap):
         bar_length = billet.volume * self.vol_frac / (self.strands * self.wt_frac * self.area)
         total_time = time_gap + (bar_length / speed)
-        return 3600 * self.density * billet.width * billet.thickness * billet.length / total_time
+        return 3600 * self.density * billet.width * billet.thickness * billet.length * self.vol_frac/ total_time
 
     def modify(self, billet):
         self.density = billet.density
