@@ -33,8 +33,7 @@ class Product:
         self.max_speed = float(input("Enter maximum finishing speed (m/sec): "))
         self.min_speed = float(input("Enter minimum finishing speed (m/sec): "))
         self.max_prod_rate = float(input("Enter maximum production rate (tons/hr): "))
-        self.wt_frac = float(
-            input("Enter required weight in terms of percentage of nominal weight required (%): ")) / 100
+        self.wt_frac = 1 - float(input("Enter percentage reduction in weight (%): ")) / 100
         self.vol_frac = 1 - float(input("Enter percentage of product lost during processing (%): ")) / 100
         self.min_time_gap = float(input("Enter minimum time gap at finishing stage (seconds): "))
         self.utilisation = float(input("Enter utilisation (%): ")) / 100
