@@ -1,6 +1,21 @@
 import math
-import numpy as np
-from scipy.optimize import minimize
+import subprocess
+import sys
+import pkg_resources
+
+try:
+    import numpy as np
+    from scipy.optimize import minimize
+except ImportError:
+    required = ["numpy", "scipy"]
+    installed = [pkg.key for pkg in pkg_resources.working_set]
+    missing = [pkg for pkg in required if pkg not in installed]
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "--upgrade", "pip"])
+    subprocess.check_call([sys.executable, "-m", "pip", "install", *missing])
+    # noinspection PyUnresolvedReferences
+    import numpy as np
+    # noinspection PyUnresolvedReferences
+    from scipy.optimize import minimize
 
 
 class Billet:
@@ -27,11 +42,11 @@ class Product:
         self.strands = float(input("Enter number of strands: "))
         self.area = math.pi * (self.diameter ** 2) / 4
         self.density = billet.density
-        self.prod_rate = "Not calculated"
-        self.speed = "Not calculated"
-        self.time_gap = "Not calculated"
-        self.days = None
-        self.monthly_production = None
+        self.prod_rate = 0
+        self.speed = 0
+        self.time_gap = 0
+        self.days = 0
+        self.monthly_production = 0
 
     def production_rate(self, billet, speed, time_gap):
         bar_length = billet.volume * self.vol_frac / (self.strands * self.wt_frac * self.area)
@@ -74,10 +89,10 @@ def optimal_speed_and_time_gap(product, billet):
 
 def monthly_prod_rate(products):
     total_days = int(input("Enter total number of working days per month: "))
-    sum = 0
+    total = 0
     for product in products:
-        sum += (product.demand / (24 * product.prod_rate * product.utilisation))
-    production_per_month = total_days / sum
+        total += (product.demand / (24 * product.prod_rate * product.utilisation))
+    production_per_month = total_days / total
     for product in products:
         product.days = product.demand * production_per_month / (24 * product.prod_rate * product.utilisation)
         product.monthly_production = product.demand * production_per_month
