@@ -45,7 +45,7 @@ class Product:
         self.prod_rate = 0
         self.speed = 0
         self.time_gap = 0
-        self.days = 0
+        self.days_per_month = 0
         self.monthly_production = 0
 
     def production_rate(self, billet, speed, time_gap):
@@ -88,13 +88,13 @@ def optimal_speed_and_time_gap(product, billet):
 
 
 def monthly_prod_rate(products):
-    total_days = int(input("Enter total number of working days per month: "))
+    total_days = int(input("Enter total number of working days per year: ")) / 12
     total = 0
     for product in products:
         total += (product.demand / (24 * product.prod_rate * product.utilisation))
     production_per_month = total_days / total
     for product in products:
-        product.days = product.demand * production_per_month / (24 * product.prod_rate * product.utilisation)
+        product.days_per_month = product.demand * production_per_month / (24 * product.prod_rate * product.utilisation)
         product.monthly_production = product.demand * production_per_month
     return production_per_month, total_days
 
@@ -132,15 +132,15 @@ if __name__ == '__main__':
             for product in products:
                 print("{:.5f}\t\t\t{:.5f}\t\t\t\t{:.5f}".format(product.speed, product.time_gap, product.prod_rate))
         elif query == 2:
-            print("Diameter(m)\t\tNo. of days\t\tMonthly production in tonnes")
+            print("Diameter(m)\t\tNo. of days per month\t\tMonthly production in tonnes")
             for product in products:
-                print("{:.5f}\t\t\t{:.5f}\t\t{:.5f}".format(product.diameter, product.days, product.monthly_production))
+                print("{:.5f}\t\t\t{:.5f}\t\t{:.5f}".format(product.diameter, product.days_per_month, product.monthly_production))
             print("Total monthly production is", total_monthly_prod,
                   " tonnes and total number of working days in a month are", num_days_in_month)
         elif query == 3:
-            print("Diameter(m)\t\tNo. of days\t\tYearly production in tonnes")
+            print("Diameter(m)\t\tNo. of days per year\t\tYearly production in tonnes")
             for product in products:
-                print("{:.5f}\t\t\t{:.5f}\t\t{:.5f}".format(product.diameter, product.days * 12, product.monthly_production * 12))
+                print("{:.5f}\t\t\t{:.5f}\t\t{:.5f}".format(product.diameter, product.days_per_month * 12, product.monthly_production * 12))
             print("Total yearly production is", total_yearly_prod,
                   "tonnes and total number of working days in a year are", num_days_in_month * 12)
         elif query == 4:

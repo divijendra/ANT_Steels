@@ -33,13 +33,13 @@ def optimal_speed_and_time_gap(product, billet):
 
 
 def monthly_prod_rate(products):
-    total_days = int(input("Enter total number of working days per month: "))
+    total_days = int(input("Enter total number of working days_per_month per month: "))
     sum = 0
     for product in products:
         sum += (product.demand / (24 * product.prod_rate * product.utilisation))
     production_per_month = total_days / sum
     for product in products:
-        product.days = product.demand * production_per_month / (24 * product.prod_rate * product.utilisation)
+        product.days_per_month = product.demand * production_per_month / (24 * product.prod_rate * product.utilisation)
         product.monthly_production = product.demand * production_per_month
     return production_per_month, total_days
 
