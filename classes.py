@@ -15,8 +15,7 @@ class Product:
         self.max_speed = float(input("Enter maximum finishing speed (m/sec): "))
         self.min_speed = float(input("Enter minimum finishing speed (m/sec): "))
         self.max_prod_rate = float(input("Enter maximum production rate (tons/hr): "))
-        self.wt_frac = float(
-            input("Enter required weight in terms of percentage of nominal weight required (%): ")) / 100
+        self.wt_frac = 1 - float(input("Enter percentage reduction in weight (%): ")) / 100
         self.vol_frac = 1 - float(input("Enter percentage of product lost during processing (%): ")) / 100
         self.min_time_gap = float(input("Enter minimum time gap at finishing stage (seconds): "))
         self.utilisation = float(input("Enter utilisation (%): ")) / 100
@@ -24,16 +23,16 @@ class Product:
         self.strands = float(input("Enter number of strands: "))
         self.area = math.pi * (self.diameter ** 2) / 4
         self.density = billet.density
-        self.prod_rate = "Not calculated"
-        self.speed = "Not calculated"
-        self.time_gap = "Not calculated"
-        self.days = None
-        self.monthly_production = None
+        self.prod_rate = 0
+        self.speed = 0
+        self.time_gap = 0
+        self.days_per_month = 0
+        self.monthly_production = 0
 
     def production_rate(self, billet, speed, time_gap):
         bar_length = billet.volume * self.vol_frac / (self.strands * self.wt_frac * self.area)
         total_time = time_gap + (bar_length / speed)
-        return 3600 * self.density * billet.width * billet.thickness * billet.length / total_time
+        return 3600 * self.density * billet.width * billet.thickness * billet.length * self.vol_frac / total_time
 
     def modify(self, billet):
         self.density = billet.density

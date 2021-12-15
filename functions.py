@@ -23,6 +23,11 @@ def constraint(params, *variables):
 
 
 def optimal_speed_and_time_gap(product, billet):
+    """
+
+    :type product: Product
+    :type billet: Billet
+    """
     speed_bounds = (product.min_speed, product.max_speed)
     time_gap_bounds = (product.min_time_gap, math.inf)
     bounds = (speed_bounds, time_gap_bounds)
@@ -33,11 +38,11 @@ def optimal_speed_and_time_gap(product, billet):
 
 
 def monthly_prod_rate(products):
-    total_days = int(input("Enter total number of working days_per_month per month: "))
-    sum = 0
+    total_days = int(input("Enter total number of working days per year: ")) / 12
+    total = 0
     for product in products:
-        sum += (product.demand / (24 * product.prod_rate * product.utilisation))
-    production_per_month = total_days / sum
+        total += (product.demand / (24 * product.prod_rate * product.utilisation))
+    production_per_month = total_days / total
     for product in products:
         product.days_per_month = product.demand * production_per_month / (24 * product.prod_rate * product.utilisation)
         product.monthly_production = product.demand * production_per_month
