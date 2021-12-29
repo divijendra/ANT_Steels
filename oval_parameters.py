@@ -46,7 +46,7 @@ B = b / mult_factor
 h_prime_result = root(h_prime_eqn, h0, args=(radius, B))
 h_prime = h_prime_result.x[0]
 roll_gap = H - 2 * h_prime
-print("Groove depth: ", h_prime)
+print("Groove depth (h in mm): ", h_prime)
 print("Roll gap at collars (S in mm): ", roll_gap)
 print("Width of oval pass (B in mm): ", B)
 print("Width of oval bar cross-section (b in mm): ", b)
