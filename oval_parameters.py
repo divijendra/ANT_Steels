@@ -32,11 +32,11 @@ def h_prime_eqn(x, *args):
     return B - 2 * math.sqrt(x * (2 * r - x))
 
 
-radius = float(input("Enter main radius of oval pass: "))
+radius = float(input("Enter main radius of oval pass (mm): "))
 area = float(input("Enter area of oval bar(sq mm): "))
 H = float(input("Enter thickness of oval bar (H in mm): "))
 mult_factor = float(input("Enter b/B ratio: "))
-h0 = float(input("Enter an initial guess for groove depth: "))
+h0 = float(input("Enter an initial guess for groove depth (mm): "))
 h_result = root(h_eqn, h0, args=(radius, area, H))
 h = h_result.x[0]
 # h is height of the chords
