@@ -32,21 +32,25 @@ def h_prime_eqn(x, *args):
     return B - 2 * math.sqrt(x * (2 * r - x))
 
 
-radius = float(input("Enter main radius of oval pass (mm): "))
-area = float(input("Enter area of oval bar(sq mm): "))
-H = float(input("Enter thickness of oval bar (H in mm): "))
+area_1 = float(input("Enter area of oval bar(sq mm): "))
+area_2 = float(input("Enter area of next round (sq mm): "))
+Ds = math.sqrt(4 * area_2 / math.pi)
+main_radius_oval = (0.012 * Ds * Ds) + (1.01 * Ds) + 10.47
+H = (0.816 * Ds) - 0.975
 mult_factor = float(input("Enter b/B ratio: "))
-h0 = float(input("Enter an initial guess for groove depth (mm): "))
-h_result = root(h_eqn, h0, args=(radius, area, H))
+h0 = 0.4 * H - 0.75 if area_1 > 150 else 0.3 * H - 0.14
+h_result = root(h_eqn, h0, args=(main_radius_oval, area_1, H))
 h = h_result.x[0]
 # h is height of the chords
 # h_prime is grove depth (greater than h).
-b = 2 * math.sqrt(h * (2 * radius - h))
+b = 2 * math.sqrt(h * (2 * main_radius_oval - h))
 B = b / mult_factor
-h_prime_result = root(h_prime_eqn, h0, args=(radius, B))
+h_prime_result = root(h_prime_eqn, h0, args=(main_radius_oval, B))
 h_prime = h_prime_result.x[0]
 roll_gap = H - 2 * h_prime
-print("Groove depth (h in mm): ", h_prime)
-print("Roll gap at collars (S in mm): ", roll_gap)
-print("Width of oval pass (B in mm): ", B)
-print("Width of oval bar cross-section (b in mm): ", b)
+print("H =", H, "mm")
+print("R =", main_radius_oval, "mm")
+print("h =", h_prime, "mm")
+print("S =", roll_gap, "mm")
+print("B =", B, "mm")
+print("b =", b, "mm")
