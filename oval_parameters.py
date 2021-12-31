@@ -34,20 +34,27 @@ def h_prime_eqn(x, *args):
 
 area_1 = float(input("Enter area of oval bar(sq mm): "))
 area_2 = float(input("Enter area of next round (sq mm): "))
-Ds = math.sqrt(4 * area_2 / math.pi)
-main_radius_oval = (0.012 * Ds * Ds) + (1.01 * Ds) + 10.47
-H = (0.816 * Ds) - 0.975
 mult_factor = float(input("Enter b/B ratio: "))
+
+Ds = math.sqrt(4 * area_2 / math.pi)
+main_radius_oval = round((0.012 * Ds * Ds) + (1.01 * Ds) + 10.47, 0)
+H = round((0.816 * Ds) - 0.975, 1)
+
 h0 = 0.4 * H - 0.75 if area_1 > 150 else 0.3 * H - 0.14
 h_result = root(h_eqn, h0, args=(main_radius_oval, area_1, H))
-h = h_result.x[0]
+h = round(h_result.x[0], 1)
+
 # h is height of the chords
 # h_prime is grove depth (greater than h).
-b = 2 * math.sqrt(h * (2 * main_radius_oval - h))
-B = b / mult_factor
+
+b = round(2 * math.sqrt(h * (2 * main_radius_oval - h)), 3)
+B = round(b / mult_factor, 3)
+
 h_prime_result = root(h_prime_eqn, h0, args=(main_radius_oval, B))
-h_prime = h_prime_result.x[0]
-roll_gap = H - 2 * h_prime
+h_prime = round(h_prime_result.x[0], 1)
+
+roll_gap = round(H - 2 * h_prime, 1)
+
 print("H =", H, "mm")
 print("R =", main_radius_oval, "mm")
 print("h =", h_prime, "mm")
