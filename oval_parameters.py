@@ -23,13 +23,15 @@ def h_eqn(x, *args):
     total_area = args[1]
     H = args[2]
     h = x
-    return (total_area / 2) - ((r ** 2) * np.arccos(1 - (h / r))) + ((r + h - H) * math.sqrt(h * (2 * r - h)))
+    return (((total_area / 2) - ((r ** 2) * np.arccos(1 - (h / r)))) ** 2) - (((r + h - H) ** 2) * h * (2 * r - h))
+#    return (total_area / 2) - ((r ** 2) * np.arccos(1 - (h / r))) + ((r + h - H) * math.sqrt(h * (2 * r - h)))
 
 
 def h_prime_eqn(x, *args):
     r = args[0]
     B = args[1]
-    return B - 2 * math.sqrt(x * (2 * r - x))
+    return (B ** 2) - (4 * (x * (2 * r - x)))
+#    return B - 2 * math.sqrt(x * (2 * r - x))
 
 
 area_1 = float(input("Enter area of oval bar(sq mm): "))
